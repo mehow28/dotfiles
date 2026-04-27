@@ -1,0 +1,326 @@
+/* ═══════════════════════════════════════════════════════════
+   WAYBAR STYLE - Cyberpunk/Vaporwave Theme
+   ═══════════════════════════════════════════════════════════ */
+
+* {
+    border: none;
+    font-family: "JetBrainsMono Nerd Font", "Font Awesome 6 Free";
+    font-size: 12px;
+    min-height: 0;
+}
+
+/* MAIN WAYBAR WINDOW */
+window#waybar {
+    background: rgba(10, 10, 25, 0.13);
+    color: #e0d5ff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+    transition-property: background-color;
+    transition-duration: 0.5s;
+}
+
+window#waybar.hidden {
+    opacity: 0.5;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   WORKSPACES
+   ═══════════════════════════════════════════════════════════ */
+
+#workspaces {
+    background: transparent;
+    margin: 0px 2px;
+    padding: 0px 5px;
+    border-radius: 10px;
+}
+
+#workspaces button {
+    padding: 0px 8px;
+    margin: 0px 3px;
+    border-radius: 8px;
+    color: #7b6ea3;
+    background: rgba(25, 15, 50, 0.25);
+    transition: all 0.3s ease-in-out;
+    border: 1px solid rgba(168, 85, 247, 0.15);
+}
+
+/* Workspace z oknami (zajęty) */
+#workspaces button.persistent,
+#workspaces button.visible {
+    color: #c8b7ff;
+    background: rgba(25, 15, 50, 0.55);
+    border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+/* Aktywny workspace */
+#workspaces button.active {
+    color: #0a0a19;
+    background: linear-gradient(45deg, #a855f7, #3b82f6);
+    min-width: 40px;
+    box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+    border: 1px solid rgba(168, 85, 247, 0.6);
+    font-weight: 600;
+}
+
+#workspaces button:hover {
+    background: rgba(168, 85, 247, 0.3);
+    color: #d8b4fe;
+    box-shadow: 0 0 8px rgba(168, 85, 247, 0.3);
+}
+
+#workspaces button.urgent {
+    color: #1e1e2e;
+    background: #f38ba8;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   WINDOW TITLE
+   ═══════════════════════════════════════════════════════════ */
+
+#window {
+    margin: 0px 15px;
+    padding: 0px 10px;
+    border-radius: 18px;
+    color: #c8b7ff;
+    background: rgba(25, 15, 50, 0.45);
+    font-weight: bold;
+}
+
+/* SPOTIFY NOW PLAYING - Spotify green gradient with rounded border */
+#custom-spotify {
+    margin: 0px;
+    padding: 0px 15px 0px 20px;
+    border-radius: 20px 0px 0px 20px;
+    color: #000000;
+    background: 
+        linear-gradient(90deg, rgba(30, 215, 96, 0.58), rgba(30, 215, 96, 0.58)) padding-box,
+        rgba(0, 0, 0, 0.23) border-box;
+    font-weight: bold;
+    border: 1px solid transparent;
+    border-right: 1px solid rgba(0, 0, 0, 0.23);
+    transition: background 0.2s;
+}
+
+#custom-spotify:hover {
+    background: 
+        linear-gradient(90deg, rgba(30, 215, 96, 0.83), rgba(30, 215, 96, 0.83)) padding-box,
+        rgba(0, 0, 0, 0.23) border-box;
+    border-radius: 20px 0px 0px 20px;
+    box-shadow: 0 0 10px rgba(30, 215, 96, 0.6);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CLOCK
+   ═══════════════════════════════════════════════════════════ */
+
+/* Clock - Purple to blue gradient with rounded border */
+#clock {
+    margin: 0px;
+    padding: 0px 20px 0px 15px;
+    border-radius: 0px 20px 20px 0px;
+    color: #ffffff;
+    background: 
+        linear-gradient(90deg, rgba(168, 85, 247, 0.58), rgba(99, 102, 241, 0.58)) padding-box,
+        rgba(0, 0, 0, 0.23) border-box;
+    font-weight: bold;
+    font-size: 12px;
+    border: 1px solid transparent;
+    border-left: 1px solid rgba(0, 0, 0, 0.23);
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+    transition: background 0.2s;
+}
+
+#clock:hover {
+    background: 
+        linear-gradient(90deg, rgba(168, 85, 247, 0.83), rgba(99, 102, 241, 0.83)) padding-box,
+        rgba(0, 0, 0, 0.23) border-box;
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.6);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RIGHT MODULES
+   ═══════════════════════════════════════════════════════════ */
+
+#pulseaudio,
+#network,
+#cpu,
+#memory,
+#temperature,
+#custom-cpu_temp,
+#tray {
+    margin: 0px;
+    padding: 0px 12px;
+    border-radius: 20px;
+    color: #e0d5ff;
+    background: rgba(25, 15, 50, 0.55);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   AUDIO
+   ═══════════════════════════════════════════════════════════ */
+
+#pulseaudio {
+    margin-left: 5px;
+    color: #ffffff;
+    background: linear-gradient(90deg, rgba(147, 51, 234, 0.25), rgba(126, 34, 206, 0.20));
+    border: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+#pulseaudio.muted {
+    color: #f38ba8;
+    background: rgba(243, 139, 168, 0.15);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   NETWORK
+   ═══════════════════════════════════════════════════════════ */
+
+#network {
+    color: #ddd6fe;
+    background: rgba(139, 92, 246, 0.30);
+}
+
+#network.disconnected {
+    color: #f472b6;
+    background: rgba(244, 114, 182, 0.25);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CPU + TEMP (Custom Widget)
+   ═══════════════════════════════════════════════════════════ */
+
+#custom-cpu_temp {
+    color: #bfdbfe;
+    background: rgba(59, 130, 246, 0.30);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SYSTEM STATS (CPU + RAM + Network combined)
+   ═══════════════════════════════════════════════════════════ */
+
+#custom-system_stats {
+    margin: 0px 5px;
+    padding: 0px 12px;
+    border-radius: 20px;
+    color: #ffffff;
+    background: linear-gradient(90deg, rgba(79, 70, 229, 0.25), rgba(67, 56, 202, 0.20));
+    font-weight: normal;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+#custom-system_stats:hover {
+    background: linear-gradient(90deg, rgba(79, 70, 229, 0.35), rgba(67, 56, 202, 0.30));
+    box-shadow: 0 0 8px rgba(79, 70, 229, 0.4);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TEMPERATURE
+   ═══════════════════════════════════════════════════════════ */
+
+#temperature {
+    color: #f5c2e7;
+    background: rgba(245, 194, 231, 0.20);
+}
+
+#temperature.critical {
+    color: #f38ba8;
+    background: rgba(243, 139, 168, 0.3);
+    animation: blink 1s linear infinite;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   NOTIFICATIONS
+   ═══════════════════════════════════════════════════════════ */
+
+#custom-notification {
+    margin: 0px 5px;
+    padding: 0px 12px;
+    border-radius: 20px;
+    color: #f5d0fe;
+    background: linear-gradient(90deg, rgba(192, 132, 252, 0.28), rgba(168, 85, 247, 0.25));
+    font-size: 14px;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+#custom-notification:hover {
+    background: linear-gradient(90deg, rgba(192, 132, 252, 0.38), rgba(168, 85, 247, 0.35));
+    box-shadow: 0 0 8px rgba(168, 85, 247, 0.4);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   WEATHER WIDGET
+   ═══════════════════════════════════════════════════════════ */
+
+#custom-weather {
+    margin: 0px 5px;
+    padding: 0px 12px;
+    border-radius: 20px;
+    color: #ffffff;
+    background: linear-gradient(90deg, rgba(56, 189, 248, 0.20), rgba(59, 130, 246, 0.15));
+    font-weight: normal;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+#custom-weather:hover {
+    background: linear-gradient(90deg, rgba(125, 211, 252, 0.35), rgba(147, 197, 253, 0.30));
+    box-shadow: 0 0 8px rgba(147, 197, 253, 0.3);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   POWER/LOGOUT BUTTON
+   ═══════════════════════════════════════════════════════════ */
+
+#custom-power {
+    margin: 0px 5px 0px 10px;
+    padding: 0px 12px;
+    border-radius: 20px;
+    color: #fda4af;
+    background: linear-gradient(90deg, rgba(251, 113, 133, 0.28), rgba(243, 139, 168, 0.25));
+    font-size: 14px;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+#custom-power:hover {
+    background: linear-gradient(90deg, rgba(251, 113, 133, 0.38), rgba(243, 139, 168, 0.35));
+    box-shadow: 0 0 10px rgba(243, 139, 168, 0.5);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SYSTEM TRAY
+   ═══════════════════════════════════════════════════════════ */
+
+#tray {
+    margin-right: 5px;
+    padding: 0px 10px;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+    background-color: #f38ba8;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TOOLTIPS
+   ═══════════════════════════════════════════════════════════ */
+
+tooltip {
+    background: rgba(10, 10, 25, 0.95);
+    border: 2px solid #a855f7;
+    border-radius: 10px;
+}
+
+tooltip label {
+    color: #e0d5ff;
+    padding: 5px;
+    font-size: 14px;
+}

@@ -1,0 +1,109 @@
+/*******************************************************************************
+ * ROFI CONFIG - Cyberpunk/Vaporwave Theme
+ *******************************************************************************/
+
+configuration {
+    modi: "drun,run,window";
+    show-icons: true;
+    display-drun: " Apps";
+    display-run: " Run";
+    display-window: " Windows";
+    drun-display-format: "{name}";
+    window-format: "{w} · {c} · {t}";
+    font: "JetBrainsMono Nerd Font 10";
+    icon-theme: "Papirus-Dark";
+}
+
+* {
+    background-color: transparent;
+    text-color: #e0d5ff;
+}
+
+window {
+    width: 32%;
+    border: 2px solid;
+    border-color: #a855f7;
+    border-radius: 0;
+    background-color: #00000080;
+    padding: 0;
+}
+
+mainbox {
+    background-color: transparent;
+    padding: 12px;
+    children: [inputbar, listview];
+}
+
+inputbar {
+    background-color: transparent;
+    padding: 0 0 12px 0;
+    children: [prompt, entry];
+    spacing: 10px;
+}
+
+prompt {
+    background-color: #000000;
+    text-color: #a855f7;
+    padding: 12px 15px;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+entry {
+    background-color: #190f32cc;
+    text-color: #e0d5ff;
+    padding: 12px;
+    border-radius: 8px;
+    placeholder: "Search...";
+    placeholder-color: #9a8fc7;
+}
+
+listview {
+    background-color: transparent;
+    padding: 0;
+    columns: 1;
+    lines: 10;
+    spacing: 4px;
+    scrollbar: false;
+}
+
+element {
+    background-color: transparent;
+    text-color: #9a8fc7;
+    padding: 10px 12px;
+    border-radius: 8px;
+    spacing: 10px;
+}
+
+element normal.normal {
+    background-color: transparent;
+    text-color: #9a8fc7;
+}
+
+element alternate.normal {
+    background-color: transparent;
+    text-color: #9a8fc7;
+}
+
+element selected.normal {
+    background-color: #00000080;
+    text-color: #a855f7;
+}
+
+element-icon {
+    background-color: transparent;
+    size: 24px;
+}
+
+element-text {
+    background-color: transparent;
+    text-color: inherit;
+    vertical-align: 0.5;
+}
+
+textbox {
+    background-color: #190f32cc;
+    text-color: #e0d5ff;
+    padding: 12px;
+    border-radius: 8px;
+}

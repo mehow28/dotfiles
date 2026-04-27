@@ -1,0 +1,44 @@
+/* CSS for wlogout */
+
+* {
+    background-image: none;
+    font-family: "Inter", "JetBrains Mono Nerd Font", sans-serif;
+}
+
+window {
+    background-color: rgba(0, 0, 0, 0.9);
+}
+
+button {
+    color: #f5c2e7;
+    background-color: rgba(26, 27, 38, 0.8);
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 10px;
+    border-color: #f5c2e7;
+    margin: 10px;
+}
+
+button:focus,
+button:active,
+button:hover {
+    background-color: #f5c2e7;
+    color: #1e1e2e;
+    outline-style: none;
+}
+
+#lock {
+    border-color: #f5c2e7;
+}
+
+#logout {
+    border-color: #cba6f7;
+}
+
+#shutdown {
+    border-color: #f38ba8;
+}
+
+#reboot {
+    border-color: #a6e3a1;
+}
