@@ -12,13 +12,13 @@ if [ ! -d ".git" ]; then
     echo ""
     echo "  Next step: add your GitHub remote:"
     echo "    cd $DOTFILES_DIR"
-    echo "    git remote add origin git@github.com:<USER>/<REPO>.git"
+    echo "    git remote add origin git@github.com:mehow28/dotfiles.git"
     echo ""
 fi
 
 if [ -z "$(git remote get-url $REMOTE_NAME 2>/dev/null)" ]; then
     echo "[warn] No remote '$REMOTE_NAME' configured."
-    echo "  Run: git remote add origin git@github.com:<USER>/<REPO>.git"
+    echo "  Run: git remote add origin git@github.com:mehow28/dotfiles.git"
     echo "  Then re-run this script."
     exit 1
 fi
