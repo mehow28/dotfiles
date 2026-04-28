@@ -3,7 +3,7 @@
 DOTFILES_DIR="$HOME/dotfiles"
 CONFIG_SRC="$HOME/.config"
 
-DIRS=(
+CONFIG_DIRS=(
     hypr
     waybar
     rofi
@@ -11,10 +11,16 @@ DIRS=(
     swaync
     wlogout
     swaylock
+    swayosd
+    qylock
     gtk-3.0
     gtk-4.0
     nwg-look
     qt6ct
+)
+
+LOCAL_DIRS=(
+    quickshell-lockscreen:.local/share/quickshell-lockscreen
 )
 
 KVANTUM_FILES=(
@@ -25,8 +31,8 @@ EXCLUDES=(
     --exclude="*.backup-*"
     --exclude="*.backup-broken*"
     --exclude="*.old"
+    --exclude="themes_link"
     --exclude="sessions"
-    --exclude="start-hyprland-fixed.sh"
 )
 
 echo "=== Dotfiles Backup ==="
@@ -35,13 +41,27 @@ echo ""
 
 mkdir -p "$DOTFILES_DIR"
 
-for dir in "${DIRS[@]}"; do
+for dir in "${CONFIG_DIRS[@]}"; do
     src="$CONFIG_SRC/$dir"
     if [ -d "$src" ] || [ -e "$src" ]; then
         echo "[sync] .config/$dir/"
-        rsync -av --delete "${EXCLUDES[@]}" "$src/" "$DOTFILES_DIR/.config/$dir/"
+        mkdir -p "$DOTFILES_DIR/.config/$dir"
+        rsync -av --delete --delete-excluded "${EXCLUDES[@]}" "$src/" "$DOTFILES_DIR/.config/$dir/"
     else
         echo "[skip] .config/$dir/ (not found)"
+    fi
+done
+
+for entry in "${LOCAL_DIRS[@]}"; do
+    dir="${entry%%:*}"
+    dest="${entry##*:}"
+    src="$HOME/$dest"
+    if [ -d "$src" ] || [ -e "$src" ]; then
+        echo "[sync] $dest/"
+        mkdir -p "$DOTFILES_DIR/$dest"
+        rsync -av --delete "${EXCLUDES[@]}" "$src/" "$DOTFILES_DIR/$dest/"
+    else
+        echo "[skip] $dest/ (not found)"
     fi
 done
 
