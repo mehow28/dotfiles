@@ -1,277 +1,335 @@
-/* ═══════════════════════════════════════════════════════════
-   SWAYNC STYLE - Cyberpunk/Vaporwave Theme
-   Dopasowane do Waybar i Hyprland
-   ═══════════════════════════════════════════════════════════ */
+/* SWAYNC STYLE - ROUNDED, ELEGANT & DYNAMIC
+   Powered by Matugen
+*/
 
-/* CRITICAL: Disable ALL backdrops and backgrounds */
 * {
-    font-family: "JetBrainsMono Nerd Font", "Font Awesome 6 Free";
-    font-size: 11px;
-    font-weight: 500;
-    border: none !important;
+  all: unset;
+  font-size: 14px;
+  font-family: "Ubuntu Nerd Font", sans-serif;
+  transition: all 250ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-/* Force transparent background on EVERYTHING except actual content */
-window:not(.control-center):not(.notification) {
-    background: transparent !important;
-    background-color: transparent !important;
+/* --- SLIDERS (Volume / Backlight) --- */
+trough highlight {
+  background: #eae0e7;
+  border-radius: 24px;
 }
 
-/* Make ALL borders transparent except notification and control-center borders */
-*:not(.notification):not(.control-center):not(.control-center *) {
-    border-color: transparent !important;
-    border-width: 0 !important;
-    border-style: none !important;
+scale {
+  margin: 0 8px;
 }
 
-/* ═══════════════════════════════════════════════════════════
-   CONTROL CENTER - Panel powiadomień
-   ═══════════════════════════════════════════════════════════ */
+scale trough {
+  margin: 0rem 1rem;
+  min-height: 14px; 
+  min-width: 70px;
+  border-radius: 24px; 
+  background-color: #2e282e;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.25); 
+}
 
+trough slider {
+  margin: -10px;
+  min-width: 24px;
+  min-height: 24px;
+  border-radius: 50%; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  background-color: #e8b6f0;
+}
+
+trough slider:hover {
+  transform: scale(1.15); 
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.5), 0 0 12px #e8b6f0;
+}
+
+/* --- NOTIFICATIONS --- */
+.notification-background {
+  box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.4), inset 0 0 0 1px #4c444c;
+  border-radius: 28px; 
+  margin: 12px;
+  background: #1f1a1f;
+  color: #eae0e7;
+  padding: 6px;
+}
+
+.notification-background .notification {
+  padding: 12px;
+  border-radius: 22px;
+}
+
+.notification-background .notification.critical {
+  box-shadow: inset 0 0 10px 0 #ffb4ab;
+  border: 1px solid #ffb4ab;
+}
+
+.notification .notification-content {
+  margin: 8px;
+}
+
+.notification .notification-content overlay {
+  margin: 4px;
+}
+
+.notification-content .summary {
+  color: #eae0e7;
+  font-weight: bold;
+  font-size: 1.15em;
+}
+
+.notification-content .time {
+  color: #cfc3cd;
+  font-size: 0.9em;
+  margin-right: 5px;
+}
+
+.notification-content .body {
+  color: #cfc3cd;
+  margin-top: 6px;
+}
+
+.notification > *:last-child > * {
+  min-height: 3.4em;
+}
+
+/* Close Button */
+.notification-background .close-button {
+  margin: 8px;
+  padding: 6px;
+  border-radius: 50%; 
+  color: #161217;
+  background-color: #ffb4ab;
+  min-width: 24px;
+  min-height: 24px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+}
+
+.notification-background .close-button:hover {
+  background-color: #93000a;
+  transform: rotate(90deg) scale(1.1); 
+}
+
+.notification-background .close-button:active {
+  background-color: #ffb4ab;
+  transform: rotate(90deg) scale(0.9);
+}
+
+/* Actions */
+.notification .notification-action {
+  border-radius: 16px;
+  color: #eae0e7;
+  box-shadow: inset 0 0 0 1px #4c444c;
+  margin: 6px;
+  padding: 6px 12px;
+  font-size: 1rem;
+  background-color: #2e282e;
+}
+
+.notification .notification-action:hover {
+  background-color: #4c444c;
+  color: #e8b6f0;
+}
+
+.notification .notification-action:active {
+  background-color: #4c444c;
+}
+
+/* Progress Bars */
+.notification.critical progress {
+  background-color: #ffb4ab;
+}
+
+.notification.low progress,
+.notification.normal progress {
+  background-color: #e8b6f0;
+}
+
+.notification progress,
+.notification trough,
+.notification progressbar {
+  border-radius: 24px;
+  min-height: 8px;
+}
+
+/* --- CONTROL CENTER --- */
 .control-center {
-    background: rgba(10, 10, 25, 0.75);
-    border: 2px solid rgba(168, 85, 247, 0.5);
-    border-radius: 12px;
-    padding: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.7), inset 0 0 0 1px #2e282e;
+  border-radius: 36px; 
+  background-color: #161217;
+  color: #eae0e7;
+  padding: 24px;
+  margin: 12px;
 }
 
-/* ═══════════════════════════════════════════════════════════
-   NOTIFICATION WINDOW - Pojedyncze powiadomienie
-   ═══════════════════════════════════════════════════════════ */
-
-.notification {
-    background: rgba(15, 15, 30, 0.50);
-    border: 1px solid rgba(168, 85, 247, 0.6);
-    border-radius: 10px;
-    padding: 8px 12px;
-    margin: 4px 8px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+.control-center .notification-background {
+  border-radius: 24px;
+  box-shadow: inset 0 0 0 1px #4c444c;
+  margin: 8px 0;
 }
 
-.notification-content {
-    padding: 4px;
+.control-center .notification-background .notification {
+  border-radius: 18px;
 }
 
-/* Tytuł powiadomienia */
-.summary {
-    color: #e0d5ff;
-    font-weight: 600;
-    font-size: 12px;
-    margin-bottom: 2px;
+.control-center .notification-background .notification.low {
+  opacity: 0.8;
 }
 
-/* Treść powiadomienia */
-.body {
-    color: #c8b7ff;
-    font-size: 11px;
-    margin-top: 4px;
+/* Widgets Title */
+.control-center .widget-title > label {
+  color: #eae0e7;
+  font-size: 1.5em;
+  font-weight: 800;
+  margin-bottom: 12px;
 }
 
-/* Ikona powiadomienia */
-.notification-icon {
-    margin-right: 8px;
-    min-width: 48px;
-    min-height: 48px;
+.control-center .widget-title button {
+  border-radius: 16px;
+  color: #eae0e7;
+  background-color: #2e282e;
+  box-shadow: inset 0 0 0 1px #4c444c;
+  padding: 8px 16px;
+  font-weight: 700;
 }
 
-/* Przycisk zamknięcia */
-.close-button {
-    background: rgba(243, 139, 168, 0.3);
-    border: 1px solid rgba(243, 139, 168, 0.5);
-    border-radius: 6px;
-    color: #fda4af;
-    min-width: 20px;
-    min-height: 20px;
-    padding: 2px;
-    margin: 2px;
+.control-center .widget-title button:hover {
+  background-color: #4c444c;
+  color: #d6c0d6;
 }
 
-.close-button:hover {
-    background: rgba(251, 113, 133, 0.5);
-    box-shadow: 0 0 8px rgba(243, 139, 168, 0.4);
+.control-center .widget-title button:active {
+  background-color: #4c444c;
 }
 
-/* ═══════════════════════════════════════════════════════════
-   NOTIFICATION GROUPS
-   ═══════════════════════════════════════════════════════════ */
-
-.notification-group {
-     margin: 6px 0;
-     background: transparent;
+.control-center .notification-group {
+  margin-top: 12px;
 }
 
-.notification-group-header {
-    background: rgba(25, 15, 50, 0.6);
-    border-radius: 8px;
-    padding: 6px 10px;
-    color: #a855f7;
-    font-weight: 600;
+.control-center .notification-group:focus .notification-background {
+  background-color: #2e282e;
 }
 
-/* ═══════════════════════════════════════════════════════════
-   CONTROL CENTER WIDGETS
-   ═══════════════════════════════════════════════════════════ */
-
-.widget-title {
-    color: #e0d5ff;
-    font-size: 16px;
-    font-weight: 800;
-    margin-bottom: 8px;
+/* Scrollbar */
+scrollbar slider {
+  min-width: 8px;
+  margin: 0px 6px;
+  background: #4c444c;
+  border-radius: 24px;
+  opacity: 0.8;
 }
 
+scrollbar trough {
+  margin: 0;
+}
+
+/* --- DND TOGGLE --- */
 .widget-dnd {
-    background: rgba(25, 15, 50, 0.55);
-    border-radius: 8px;
-    padding: 8px;
-    margin: 6px 0;
+  margin-top: 12px;
+  border-radius: 20px;
+  background: #2e282e; 
+  padding: 8px 18px;
 }
 
-.widget-dnd > label {
-    color: #c8b7ff;
-    font-size: 12px;
+.widget-dnd > switch {
+  font-size: initial;
+  border-radius: 24px;
+  background: #4c444c;
+  box-shadow: inset 0 0 6px rgba(0,0,0,0.4);
 }
 
-/* Clear all button */
-.widget-label {
-    color: #e0d5ff;
-    font-size: 12px;
+.widget-dnd > switch:checked {
+  background: #e8b6f0;
 }
 
-.widget-label > button {
-    background: rgba(168, 85, 247, 0.3);
-    border: 1px solid rgba(168, 85, 247, 0.5);
-    border-radius: 8px;
-    color: #d8b4fe;
-    padding: 6px 12px;
-    margin: 4px;
+.widget-dnd > switch slider {
+  background: #eae0e7;
+  border-radius: 50%;
+  margin: 3px;
 }
 
-.widget-label > button:hover {
-    background: rgba(168, 85, 247, 0.5);
-    box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);
+/* --- MPRIS (Media) --- */
+.widget-mpris-player {
+  background: #2e282e;
+  border-radius: 28px;
+  color: #eae0e7;
+  padding: 12px;
+  margin: 12px 0;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.25);
 }
 
-/* ═══════════════════════════════════════════════════════════
-   SCROLLBAR
-   ═══════════════════════════════════════════════════════════ */
-
-scrollbar {
-    background: rgba(25, 15, 50, 0.3);
-    border-radius: 6px;
-    width: 8px;
+.widget-mpris-album-art {
+  border-radius: 20px;
+  margin-right: 18px;
 }
 
-slider {
-    background: rgba(168, 85, 247, 0.5) !important;
-    border: 1px solid rgba(168, 85, 247, 0.7) !important;
-    border-radius: 6px;
-    min-width: 6px;
+.widget-mpris-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #eae0e7;
 }
 
-slider:hover {
-    background: rgba(168, 85, 247, 0.7) !important;
-    border-color: rgba(168, 85, 247, 0.9) !important;
-    box-shadow: 0 0 8px rgba(168, 85, 247, 0.4) !important;
+.widget-mpris-subtitle {
+  font-size: 1rem;
+  color: #cfc3cd;
 }
 
-/* GTK4 specific selectors */
-scale slider,
-scale slider:hover {
-    background: rgba(168, 85, 247, 0.5) !important;
-    border: 1px solid rgba(168, 85, 247, 0.7) !important;
+.widget-mpris button {
+  border-radius: 50%; 
+  color: #eae0e7;
+  margin: 0 6px;
+  padding: 10px;
 }
 
-scale slider:hover {
-    background: rgba(168, 85, 247, 0.7) !important;
-    border-color: rgba(168, 85, 247, 0.9) !important;
-    box-shadow: 0 0 8px rgba(168, 85, 247, 0.4) !important;
+.widget-mpris button:hover {
+  background-color: #4c444c;
+  color: #e8b6f0;
 }
 
-/* Override GTK4 Breeze theme blue hover on scrollbar */
-scrollbar:hover trough slider:hover,
-scrollbar:hover slider:hover {
-    background: rgba(168, 85, 247, 0.7) !important;
-    border: 1px solid rgba(168, 85, 247, 0.9) !important;
-    border-radius: 6px !important;
-    background-image: none !important;
+/* --- BUTTON GRID --- */
+.widget-buttons-grid {
+  padding-top: 1.2rem;
 }
 
-/* ═══════════════════════════════════════════════════════════
-   BUTTONS
-   ═══════════════════════════════════════════════════════════ */
-
-button {
-    background: rgba(25, 15, 50, 0.55);
-    border: 1px solid rgba(168, 85, 247, 0.3);
-    border-radius: 6px;
-    color: #c8b7ff;
-    padding: 4px 8px;
+.widget-buttons-grid > flowbox > flowboxchild > button {
+  background: #2e282e;
+  border-radius: 20px;
+  margin: 6px;
+  padding: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
-button:hover {
-    background: rgba(168, 85, 247, 0.3);
-    border-color: rgba(168, 85, 247, 0.5);
-    box-shadow: 0 0 8px rgba(168, 85, 247, 0.3);
+.widget-buttons-grid > flowbox > flowboxchild > button:hover {
+  background: #4c444c;
+  transform: translateY(-2px);
 }
 
-button:active {
-    background: rgba(168, 85, 247, 0.5);
+.widget-buttons-grid > flowbox > flowboxchild > button label {
+  font-size: 1.8rem; 
 }
 
-/* ═══════════════════════════════════════════════════════════
-   PRIORITY LEVELS
-   ═══════════════════════════════════════════════════════════ */
-
-.low {
-    border-left: 3px solid rgba(99, 102, 241, 0.7);
+/* --- VOLUME & BACKLIGHT --- */
+.widget-volume, .widget-backlight {
+  background: #1f1a1f; 
+  border-radius: 24px;
+  margin: 6px 0;
+  padding: 8px;
 }
 
-.normal {
-    border-left: 3px solid rgba(168, 85, 247, 0.7);
+.widget-volume label {
+  color: #f5b7b1;
+  font-size: 1.5rem;
+  padding-left: 12px;
 }
 
-.critical {
-    border-left: 3px solid rgba(243, 139, 168, 0.9);
-    background: rgba(243, 139, 168, 0.15);
+.widget-volume trough highlight {
+  background: #f5b7b1;
 }
 
-/* ═══════════════════════════════════════════════════════════
-   FLOATING NOTIFICATIONS - Zmniejszona skala i marginesy
-   ═══════════════════════════════════════════════════════════ */
-
-.floating-notifications {
-    padding: 0px;
+.widget-backlight trough highlight {
+  background: #d6c0d6;
 }
 
-.blank-window {
-    background: transparent;
-}
-
-/* Napraw backdrop - NIE chcemy żadnego tła za notyfikacjami */
-.notification-window,
-.notification-window-border,
-window,
-window.background,
-window.csd {
-    background: transparent;
-    background-color: transparent;
-    background-image: none;
-}
-
-/* Wyłącz backdrop na control center */
-.control-center-widget,
-.widget-body,
-.control-center .notification-row {
-    background: transparent;
-}
-
-/* Upewnij się że pojedyncze powiadomienie nie ma backdrop */
-.notification-popup {
-    background: transparent;
-}
-
-.notification-row {
-    margin: 6px 12px;
-    background: transparent;
+.widget-backlight label {
+  font-size: 1.5rem;
+  color: #d6c0d6;
+  padding-left: 12px;
 }
