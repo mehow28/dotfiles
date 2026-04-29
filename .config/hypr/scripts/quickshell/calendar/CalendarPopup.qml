@@ -850,7 +850,7 @@ Item {
                             Text { anchors.centerIn: parent; text: "+"; font.family: "Iosevka Nerd Font"; color: diaryMa.containsMouse ? window.mauve : window.text; font.pixelSize: Math.round(32 * window.sf) }
                             MouseArea { 
                                 id: diaryMa; anchors.fill: parent; hoverEnabled: true; 
-                                onClicked: Quickshell.execDetached(["bash", window.scriptsDir + "/diary_manager.sh"]) 
+                                onClicked: { Quickshell.execDetached(["xdg-open", "https://calendar.google.com/calendar/r/eventedit"]); Quickshell.execDetached(["bash", "-c", "sleep 1 && hyprctl dispatch focuswindow class:firefox || hyprctl dispatch focuswindow class:chromium || hyprctl dispatch focuswindow class:librewolf"]) }
                             }
                             Behavior on color { ColorAnimation { duration: 150 } }
                         }
@@ -1314,7 +1314,7 @@ Item {
                             
                             MouseArea {
                                 id: schLinkMa; anchors.fill: parent; hoverEnabled: true
-                                onClicked: if(window.scheduleData && window.scheduleData.link) Quickshell.execDetached(["xdg-open", window.scheduleData.link])
+                                onClicked: { Quickshell.execDetached(["xdg-open", "https://calendar.google.com"]); Quickshell.execDetached(["bash", "-c", "sleep 1 && hyprctl dispatch focuswindow class:firefox || hyprctl dispatch focuswindow class:chromium || hyprctl dispatch focuswindow class:librewolf"]) }
                             }
                         }
                     }
@@ -1324,7 +1324,7 @@ Item {
                         Layout.fillHeight: true
 
                         Text {
-                            text: "Data stream offline. No scheduled events."
+                            text: "No events today."
                             font.family: "JetBrains Mono"
                             font.italic: true
                             font.pixelSize: Math.round(14 * window.sf)

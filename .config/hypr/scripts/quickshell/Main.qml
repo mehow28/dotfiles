@@ -245,7 +245,7 @@ PanelWindow {
         Behavior on width { enabled: !masterWindow.disableMorph; NumberAnimation { duration: masterWindow.morphDuration; easing.type: Easing.InOutCubic } }
         Behavior on height { enabled: !masterWindow.disableMorph; NumberAnimation { duration: masterWindow.morphDuration; easing.type: Easing.InOutCubic } }
 
-        opacity: masterWindow.isVisible ? 1.0 : 0.0
+        opacity: masterWindow.isVisible ? 0.8 : 0.0
         Behavior on opacity { NumberAnimation { duration: masterWindow.morphDuration === 170 ? 130 : 100; easing.type: Easing.InOutCubic } }
 
         MouseArea {
