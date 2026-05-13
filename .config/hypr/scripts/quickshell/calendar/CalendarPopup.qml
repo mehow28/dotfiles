@@ -10,6 +10,8 @@ import "../"
 Item {
     id: window
 
+    Caching { id: paths }
+
     // --- Responsive Scaling Logic ---
     Scaler {
         id: scaler
@@ -227,7 +229,12 @@ Item {
     // -------------------------------------------------------------------------
     property var weatherData: null
     property int weatherView: 0
-    property color activeWeatherHex: weatherData && weatherData.forecast && weatherData.forecast[weatherView] ? weatherData.forecast[weatherView].hex : window.mauve
+    property color activeWeatherHex: {
+        if (!window.weatherData) return window.mauve;
+        if (window.weatherView === 0 && window.weatherData.current_hex) return window.weatherData.current_hex;
+        if (window.weatherData.forecast && window.weatherData.forecast[window.weatherView]) return window.weatherData.forecast[window.weatherView].hex;
+        return window.mauve;
+    }
 
     // Transition Properties
     property int targetWeatherView: 0
@@ -242,7 +249,17 @@ Item {
     // -------------------------------------------------------------------------
     // TEMPERATURE LOGIC 
     // -------------------------------------------------------------------------
-    property real targetTemp: window.weatherData && window.weatherData.forecast[window.targetWeatherView] ? Number(window.weatherData.forecast[window.targetWeatherView].max) : 0
+    property real targetTemp: {
+        if (!window.weatherData) return 0;
+        if (window.targetWeatherView === 0 && window.weatherData.current_temp !== undefined) {
+            return Number(window.weatherData.current_temp);
+        }
+        if (window.weatherData.forecast && window.weatherData.forecast[window.targetWeatherView]) {
+            return Number(window.weatherData.forecast[window.targetWeatherView].max);
+        }
+        return 0;
+    }
+    
     property real displayedTemp: targetTemp
 
     Behavior on displayedTemp {
@@ -533,7 +550,12 @@ Item {
             Text {
                 anchors.centerIn: parent
                 anchors.verticalCenterOffset: window.centerOffset
-                text: window.weatherData && window.weatherData.forecast[window.weatherView] ? window.weatherData.forecast[window.weatherView].icon : ""
+                text: {
+                    if (!window.weatherData) return "";
+                    if (window.weatherView === 0 && window.weatherData.current_icon) return window.weatherData.current_icon;
+                    if (window.weatherData.forecast && window.weatherData.forecast[window.weatherView]) return window.weatherData.forecast[window.weatherView].icon;
+                    return "";
+                }
                 font.family: "Iosevka Nerd Font"
                 font.pixelSize: Math.round(800 * window.sf)
                 color: window.activeWeatherHex
@@ -850,7 +872,7 @@ Item {
                             Text { anchors.centerIn: parent; text: "+"; font.family: "Iosevka Nerd Font"; color: diaryMa.containsMouse ? window.mauve : window.text; font.pixelSize: Math.round(32 * window.sf) }
                             MouseArea { 
                                 id: diaryMa; anchors.fill: parent; hoverEnabled: true; 
-                                onClicked: { Quickshell.execDetached(["xdg-open", "https://calendar.google.com/calendar/r/eventedit"]); Quickshell.execDetached(["bash", "-c", "sleep 1 && hyprctl dispatch focuswindow class:firefox || hyprctl dispatch focuswindow class:chromium || hyprctl dispatch focuswindow class:librewolf"]) }
+                                onClicked: Quickshell.execDetached(["bash", window.scriptsDir + "/diary_manager.sh"]) 
                             }
                             Behavior on color { ColorAnimation { duration: 150 } }
                         }
@@ -1314,7 +1336,7 @@ Item {
                             
                             MouseArea {
                                 id: schLinkMa; anchors.fill: parent; hoverEnabled: true
-                                onClicked: { Quickshell.execDetached(["xdg-open", "https://calendar.google.com"]); Quickshell.execDetached(["bash", "-c", "sleep 1 && hyprctl dispatch focuswindow class:firefox || hyprctl dispatch focuswindow class:chromium || hyprctl dispatch focuswindow class:librewolf"]) }
+                                onClicked: if(window.scheduleData && window.scheduleData.link) Quickshell.execDetached(["xdg-open", window.scheduleData.link])
                             }
                         }
                     }
@@ -1324,7 +1346,7 @@ Item {
                         Layout.fillHeight: true
 
                         Text {
-                            text: "No events today."
+                            text: "Data stream offline. No scheduled events."
                             font.family: "JetBrains Mono"
                             font.italic: true
                             font.pixelSize: Math.round(14 * window.sf)

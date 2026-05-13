@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+source "$SCRIPT_DIR/../../caching.sh"
+qs_ensure_cache "network"
+
 # Zero-latency hardware presence check via sysfs (Instant, no nmcli hang)
 if ! ls -1d /sys/class/net/*/wireless &>/dev/null; then
     echo '{ "present": false, "power": "off", "connected": null, "networks": [] }'
@@ -22,7 +26,7 @@ get_icon() {
     else echo "󰤯"; fi
 }
 
-CACHE_DIR="${XDG_RUNTIME_DIR:-$HOME/.cache}/quickshell_network_cache"
+CACHE_DIR="$QS_CACHE_NETWORK"
 mkdir -p "$CACHE_DIR"
 
 CURRENT_RAW=$(LC_ALL=C nmcli -t -f active,ssid,signal,security device wifi | awk -F: '$1=="yes"{print; exit}')
@@ -56,12 +60,14 @@ if [[ -n "$CURRENT_RAW" ]]; then
     icon_esc="${icon//\"/\\\"}"
     CONNECTED_JSON="{\"id\":\"$ssid_esc\",\"ssid\":\"$ssid_esc\",\"icon\":\"$icon_esc\",\"signal\":\"$signal\",\"security\":\"$sec_esc\",\"ip\":\"$IP\",\"freq\":\"$FREQ\"}"
 else
+    ssid=""
     CONNECTED_JSON="null"
 fi
 
 # AWK processes the entire network list natively, zero sub-shells
-NETWORKS_JSON=$(LC_ALL=C nmcli -t -f active,ssid,signal,security device wifi list --rescan no | awk -F: '
-    !seen[$2]++ && $2 != "" && $1 != "yes" {
+# Reverted back to SSID-only deduplication, but passing conn="$ssid" to cleanly exclude the connected network
+NETWORKS_JSON=$(LC_ALL=C nmcli -t -f active,ssid,signal,security device wifi list --rescan no | awk -F: -v conn="$ssid" '
+    $2 != "" && $2 != conn && !seen[$2]++ {
         ssid=$2; signal=$3; security=$4;
         
         # Escape quotes inside strings

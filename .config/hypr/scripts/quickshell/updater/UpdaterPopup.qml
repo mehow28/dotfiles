@@ -3,6 +3,7 @@ import QtQuick.Window
 import QtQuick.Effects
 import QtQuick.Layouts
 import QtQuick.Controls
+import QtMultimedia
 import Quickshell
 import Quickshell.Io
 import "../"
@@ -11,6 +12,16 @@ Item {
     id: window
     focus: true
 
+    Caching { id: paths }
+    readonly property string videoPath: paths.getRunDir("updater") + "/video.mp4"
+    
+    // WAYLAND ANTI-DEADLOCK: Guarantee the initial frame is never 0x0.
+    // If mainCard.width evaluates to 0 on tick 1, it falls back to raw 500.
+    implicitWidth: mainCard.width || 500
+    implicitHeight: mainCard.height || 600
+
+    property bool _init: false
+
     // --- Responsive Scaling Logic ---
     Scaler {
         id: scaler
@@ -18,7 +29,9 @@ Item {
     }
     
     function s(val) { 
-        return scaler.s(val); 
+        // Failsafe: If Screen.width isn't ready on tick 1, return the raw value
+        let res = scaler.s(val);
+        return res > 0 ? res : val; 
     }
 
     // -------------------------------------------------------------------------
@@ -36,7 +49,6 @@ Item {
     readonly property color subtext0: _theme.subtext0
     readonly property color green: _theme.green
     
-    // Added for background blobs
     readonly property color mauve: _theme.mauve || "#cba6f7"
     readonly property color blue: _theme.blue || "#89b4fa"
 
@@ -46,15 +58,16 @@ Item {
     property string localVersion: "..."
     property string remoteVersion: "..."
     
-    // Box animation properties
+    // Dynamic URL based on the user's current version vs the manifest
+    property string videoUrl: ""
+    property bool uiExpanded: false
+    property bool videoReady: false
+    
     property var pendingCommits: []
     property int typeIndex: 0
 
-    ListModel {
-        id: commitModel
-    }
+    ListModel { id: commitModel }
 
-    // --- BACKGROUND ORBIT ANIMATION ---
     property real globalOrbitAngle: 0
     NumberAnimation on globalOrbitAngle {
         from: 0; to: Math.PI * 2; duration: 90000; loops: Animation.Infinite; running: true
@@ -65,9 +78,28 @@ Item {
         event.accepted = true;
     }
 
-    Process {
-        command: ["bash", "-c", "source ~/.local/state/imperative-dots-version 2>/dev/null && [ -n \"$LOCAL_VERSION\" ] && echo $LOCAL_VERSION || echo '0.0.0'"]
+    // =========================================================================
+    // ASYNC BOOT MANAGER
+    // Ensures UI maps perfectly in the compositor before firing heavy scripts
+    // =========================================================================
+    Timer {
+        id: bootSequence
+        interval: 250 // Give Hyprland a quarter-second to map the window
         running: true
+        onTriggered: {
+            window._init = true;
+            localVerProcess.running = true;
+            remoteVerProcess.running = true;
+            videoResolveProcess.running = true;
+            commitFetchProcess.running = true;
+        }
+    }
+
+    // --- 1. LOCAL VERSION FETCH ---
+    Process {
+        id: localVerProcess
+        running: false
+        command: ["bash", "-c", "source ~/.local/state/imperative-dots-version 2>/dev/null && [ -n \"$LOCAL_VERSION\" ] && echo $LOCAL_VERSION || echo '0.0.0'"]
         stdout: StdioCollector {
             onStreamFinished: {
                 let out = this.text ? this.text.trim() : "";
@@ -76,9 +108,11 @@ Item {
         }
     }
 
+    // --- 2. REMOTE VERSION FETCH ---
     Process {
+        id: remoteVerProcess
+        running: false
         command: ["bash", "-c", "curl -m 5 -s https://raw.githubusercontent.com/ilyamiro/imperative-dots/master/install.sh | grep '^DOTS_VERSION=' | cut -d'\"' -f2"]
-        running: true
         stdout: StdioCollector {
             onStreamFinished: {
                 let out = this.text ? this.text.trim() : "";
@@ -87,7 +121,76 @@ Item {
         }
     }
 
-    // Highly robust python script to trace the commit difference via install.sh history
+    // --- 3. DYNAMIC VIDEO RESOLUTION ---
+    property string videoResolveScript: `
+import urllib.request, json, subprocess, sys
+try:
+    local_str = subprocess.check_output("source ~/.local/state/imperative-dots-version 2>/dev/null && echo $LOCAL_VERSION", shell=True).decode('utf-8').strip()
+    if not local_str: local_str = '0.0.0'
+    
+    # Safe Semantic Version Parsing
+    def parse_v(v):
+        clean = ''.join(c if c.isdigit() or c == '.' else ' ' for c in v).strip().replace(' ', '.')
+        return [int(x) for x in clean.split('.') if x.isdigit()]
+        
+    local_v = parse_v(local_str)
+
+    req = urllib.request.Request('https://raw.githubusercontent.com/ilyamiro/imperative-dots/master/updates.json')
+    res = urllib.request.urlopen(req, timeout=5)
+    data = json.loads(res.read().decode())
+
+    valid_videos = []
+    for item in data.get('videos', []):
+        target_v = parse_v(item['version'])
+        # Only grab videos for versions newer than what the user currently has installed
+        if target_v > local_v:
+            valid_videos.append((target_v, item['url']))
+
+    if valid_videos:
+        valid_videos.sort(key=lambda x: x[0])
+        url = valid_videos[-1][1] # Play the newest feature video they missed
+        
+        # Verify the video URL is actually alive before expanding the UI
+        head = urllib.request.Request(url, method='HEAD')
+        head_res = urllib.request.urlopen(head, timeout=5)
+        if head_res.getcode() in [200, 301, 302]:
+            print(url)
+except Exception:
+    pass
+`
+
+    Process {
+        id: videoResolveProcess
+        running: false
+        command: ["python3", "-c", window.videoResolveScript]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                let url = this.text ? this.text.trim() : "";
+                if (url !== "" && url.startsWith("http")) {
+                    window.videoUrl = url;
+                    window.uiExpanded = true;
+                    videoDownloadProcess.running = true;
+                }
+            }
+        }
+    }
+
+    // --- 4. VIDEO DOWNLOAD (BACKGROUND DISK WRITE) ---
+    Process {
+        id: videoDownloadProcess
+        running: false
+        // Quietly pulls the mp4 to RAM/tmpfs to avoid locking the UI thread
+        command: ["bash", "-c", "curl -m 60 -s -L -o '" + window.videoPath + "' " + window.videoUrl]
+        onExited: {
+            if (exitCode === 0) {
+                videoPlayer.source = "file://" + window.videoPath;
+                videoPlayer.play();
+                window.videoReady = true; // Fades out spinner, fades in video
+            }
+        }
+    }
+
+    // --- 5. COMMIT LOG FETCH ---
     property string fetchScript: `
 import urllib.request, json, subprocess
 
@@ -112,7 +215,6 @@ try:
     if local in ['0.0.0', '...', '']: 
         get_latest()
     else:
-        # Step 1: Find the commit SHA where install.sh contained the local version
         req_commits = urllib.request.Request('https://api.github.com/repos/' + repo + '/commits?path=install.sh&per_page=15', headers={'User-Agent': 'updater'})
         res_commits = urllib.request.urlopen(req_commits, timeout=5)
         file_commits = json.loads(res_commits.read().decode())
@@ -136,7 +238,6 @@ try:
             if local_sha:
                 break
                 
-        # Step 2: Use the exact SHA to get all commits in between
         if local_sha:
             compare_req = urllib.request.Request('https://api.github.com/repos/' + repo + '/compare/' + local_sha + '...master', headers={'User-Agent': 'updater'})
             compare_res = urllib.request.urlopen(compare_req, timeout=5)
@@ -156,31 +257,25 @@ except Exception as e:
 `
 
     Process {
+        id: commitFetchProcess
+        running: false
         command: ["python3", "-c", window.fetchScript]
-        running: true
         stdout: StdioCollector {
             onStreamFinished: {
                 let out = this.text ? this.text.trim() : "";
                 if (out !== "") {
                     let blocks = out.split("---SPLIT---");
                     let validLines = [];
-                    
                     for (let i = 0; i < blocks.length; i++) {
                         let blockTrimmed = blocks[i].trim();
                         if (blockTrimmed === "") continue;
-                        
-                        // Parse literally every new line inside the commit into separate boxes
                         let lines = blockTrimmed.split(/\r\n|\n/);
                         for (let j = 0; j < lines.length; j++) {
                             let trimmed = lines[j].trim();
-                            if (trimmed.length > 0) {
-                                validLines.push(trimmed);
-                            }
+                            if (trimmed.length > 0) validLines.push(trimmed);
                         }
                     }
-
                     commitModel.clear();
-                    
                     if (validLines.length > 0) {
                         window.pendingCommits = validLines;
                         window.typeIndex = 0;
@@ -198,7 +293,7 @@ except Exception as e:
 
     Timer {
         id: commitBoxTimer
-        interval: 100 // Slightly faster cascade for multiple commits
+        interval: 100
         repeat: true
         onTriggered: {
             if (window.typeIndex < window.pendingCommits.length) {
@@ -210,16 +305,23 @@ except Exception as e:
         }
     }
 
-    // -------------------------------------------------------------------------
+    // =========================================================================
     // UI LAYOUT
-    // -------------------------------------------------------------------------
+    // =========================================================================
     Rectangle {
-        anchors.fill: parent
+        id: mainCard
+        width: window.uiExpanded ? window.s(950) : window.s(500)
+        height: window.uiExpanded ? window.s(850) : window.s(600)
+        anchors.centerIn: parent 
+        
         radius: window.s(16)
         color: window.base
         border.color: window.surface1
         border.width: 1
         clip: true
+
+        Behavior on width { enabled: window._init; NumberAnimation { duration: 600; easing.type: Easing.OutExpo } }
+        Behavior on height { enabled: window._init; NumberAnimation { duration: 600; easing.type: Easing.OutExpo } }
 
         // --- AMBIENT BLOBS ---
         Rectangle {
@@ -258,7 +360,7 @@ except Exception as e:
                     font.pixelSize: window.s(22)
                     color: window.subtext0 
                     anchors.centerIn: parent
-                    anchors.horizontalCenterOffset: 0 // Starts exactly dead center
+                    anchors.horizontalCenterOffset: 0 
                 }
                 
                 Text { 
@@ -269,7 +371,7 @@ except Exception as e:
                     font.pixelSize: window.s(48) 
                     color: window.green 
                     anchors.centerIn: parent
-                    anchors.horizontalCenterOffset: window.s(20) // Starts slightly right
+                    anchors.horizontalCenterOffset: window.s(20)
                     opacity: 0
                     scale: 0.8 
                 }
@@ -286,40 +388,21 @@ except Exception as e:
                     opacity: newVer.opacity
                 }
 
-                // Smooth, fluid animation sequence
                 SequentialAnimation {
                     id: versionAnim
 
                     PauseAnimation { duration: 150 }
 
                     ParallelAnimation {
-                        // 1. Old version smoothly slides left and disappears completely (slower)
-                        NumberAnimation { 
-                            target: oldVer; property: "anchors.horizontalCenterOffset"; 
-                            to: window.s(-30) // Slide smoothly left
-                            duration: 1200; easing.type: Easing.OutExpo 
-                        }
-                        NumberAnimation {
-                            target: oldVer; property: "opacity";
-                            to: 0.0 // Fully disappear
-                            duration: 1000; easing.type: Easing.OutSine
-                        }
+                        NumberAnimation { target: oldVer; property: "anchors.horizontalCenterOffset"; to: window.s(-30); duration: 1200; easing.type: Easing.OutExpo }
+                        NumberAnimation { target: oldVer; property: "opacity"; to: 0.0; duration: 1000; easing.type: Easing.OutSine }
 
-                        // 2. New version slides into the EXACT center and scales up
                         SequentialAnimation {
-                            PauseAnimation { duration: 400 } // Wait a bit more for old version to clear out
+                            PauseAnimation { duration: 400 } 
                             ParallelAnimation {
                                 NumberAnimation { target: newVer; property: "opacity"; to: 1; duration: 800; easing.type: Easing.OutSine }
-                                NumberAnimation { 
-                                    target: newVer; property: "anchors.horizontalCenterOffset"; 
-                                    to: 0 // Ends exactly dead center
-                                    duration: 1200; easing.type: Easing.OutExpo 
-                                }
-                                NumberAnimation { 
-                                    target: newVer; property: "scale"; 
-                                    to: 1.0; 
-                                    duration: 1200; easing.type: Easing.OutBack; easing.overshoot: 1.4 
-                                }
+                                NumberAnimation { target: newVer; property: "anchors.horizontalCenterOffset"; to: 0; duration: 1200; easing.type: Easing.OutExpo }
+                                NumberAnimation { target: newVer; property: "scale"; to: 1.0; duration: 1200; easing.type: Easing.OutBack; easing.overshoot: 1.4 }
                             }
                             ScriptAction { script: glowAnim.start() }
                         }
@@ -343,6 +426,66 @@ except Exception as e:
                 }
             }
 
+            // --- STRICT 16:9 DYNAMIC VIDEO PREVIEW ---
+            Item {
+                id: videoContainer
+                Layout.fillWidth: true
+                // Perfectly clamps height to a 16:9 ratio of the dynamic width
+                Layout.preferredHeight: window.uiExpanded ? (width * 9 / 16) : 0 
+                visible: window.uiExpanded || height > 0
+                clip: true
+                
+                Behavior on Layout.preferredHeight { enabled: window._init; NumberAnimation { duration: 600; easing.type: Easing.OutExpo } }
+
+                Rectangle {
+                    anchors.fill: parent
+                    radius: window.s(12)
+                    color: window.crust 
+                    border.color: window.surface2 
+                    border.width: 1
+                    clip: true
+
+                    // Loading State Animation (Visible while downloading)
+                    Item {
+                        anchors.centerIn: parent
+                        width: window.s(42)
+                        height: window.s(42)
+                        visible: window.uiExpanded && !window.videoReady
+                        
+                        Text {
+                            anchors.centerIn: parent
+                            text: "󰑮"
+                            font.family: "Iosevka Nerd Font"
+                            font.pixelSize: window.s(42)
+                            color: window.mauve
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                            transformOrigin: Item.Center
+                            
+                            RotationAnimation on rotation {
+                                from: 0; to: 360; duration: 2500; loops: Animation.Infinite; running: parent.visible
+                            }
+                        }
+                    }
+
+                    MediaPlayer {
+                        id: videoPlayer
+                        videoOutput: videoOutput
+                        loops: MediaPlayer.Infinite
+                    }
+
+                    VideoOutput {
+                        id: videoOutput
+                        anchors.fill: parent
+                        fillMode: VideoOutput.PreserveAspectFit 
+                        
+                        // Fades in smoothly once the local video is physically ready
+                        opacity: window.videoReady ? 1.0 : 0.0
+                        Behavior on opacity { NumberAnimation { duration: 800; easing.type: Easing.InOutQuad } }
+                    }
+                }
+            }
+
             // --- CLEAN COMMIT LIST ---
             Item {
                 Layout.fillWidth: true
@@ -354,20 +497,16 @@ except Exception as e:
                     anchors.fill: parent
                     clip: true
                     model: commitModel
-                    spacing: window.s(8) // Reduced spacing for a tighter look
+                    spacing: window.s(8)
 
                     ScrollBar.vertical: ScrollBar {
                         active: true
                         policy: ScrollBar.AsNeeded
                         contentItem: Rectangle { 
-                            implicitWidth: window.s(3); 
-                            radius: window.s(1.5); 
-                            color: window.surface2; 
-                            opacity: 0.5 
+                            implicitWidth: window.s(3); radius: window.s(1.5); color: window.surface2; opacity: 0.5 
                         }
                     }
 
-                    // Elegant pop-in transition for the separate commit boxes
                     add: Transition {
                         ParallelAnimation {
                             NumberAnimation { property: "opacity"; from: 0; to: 1; duration: 400; easing.type: Easing.OutExpo }
@@ -379,9 +518,16 @@ except Exception as e:
                     delegate: Rectangle {
                         width: changelogList.width - window.s(12) 
                         height: Math.max(window.s(40), commitText.implicitHeight + window.s(20))
-                        
                         color: window.surface0 
                         radius: window.s(12)
+
+                        // Subtle Matugen Tint Overlay
+                        Rectangle {
+                            anchors.fill: parent
+                            radius: parent.radius
+                            color: window.mauve
+                            opacity: 0.05
+                        }
                         
                         Text {
                             id: commitText
@@ -404,8 +550,8 @@ except Exception as e:
             // --- HOLD TO UPDATE BUTTON ---
             Rectangle {
                 id: updateBtn
-                Layout.alignment: Qt.AlignHCenter // Centered instead of stretched
-                Layout.preferredWidth: window.s(240) // Fixed, elegant width
+                Layout.alignment: Qt.AlignHCenter 
+                Layout.preferredWidth: window.s(240) 
                 Layout.preferredHeight: window.s(54)
                 radius: window.s(12)
                 color: window.surface0

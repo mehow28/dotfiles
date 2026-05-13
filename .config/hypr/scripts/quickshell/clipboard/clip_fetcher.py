@@ -30,7 +30,8 @@ def get_cliphist():
     # Slightly smaller limit to make the initial UI pop open faster
     limit = int(sys.argv[2]) if len(sys.argv) > 2 else 12 
     
-    cache_dir = "/tmp/qs_cliphist"
+    # Use dynamically provided cache dir from QML or fallback securely
+    cache_dir = sys.argv[3] if len(sys.argv) > 3 else os.environ.get("QS_CACHE_CLIPBOARD", os.path.expanduser("~/.cache/quickshell/clipboard"))
     os.makedirs(cache_dir, exist_ok=True)
     
     try:

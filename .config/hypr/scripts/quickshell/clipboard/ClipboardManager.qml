@@ -11,6 +11,8 @@ Item {
     id: window
     focus: true
 
+    Caching { id: paths }
+
     Scaler {
         id: scaler
         currentWidth: Screen.width
@@ -82,7 +84,7 @@ Item {
     Process {
         id: clipFetcher
         running: true
-        command: ["python3", Quickshell.env("HOME") + "/.config/hypr/scripts/quickshell/clipboard/clip_fetcher.py", window.currentOffset, window.fetchLimit]
+        command: ["python3", Quickshell.env("HOME") + "/.config/hypr/scripts/quickshell/clipboard/clip_fetcher.py", window.currentOffset, window.fetchLimit, paths.getCacheDir("clipboard")]
         
         stdout: StdioCollector {
             onStreamFinished: {
@@ -131,7 +133,7 @@ Item {
         if (isLoading || !hasMore) return;
         isLoading = true;
         currentOffset += fetchLimit;
-        clipFetcher.command = ["python3", Quickshell.env("HOME") + "/.config/hypr/scripts/quickshell/clipboard/clip_fetcher.py", window.currentOffset, window.fetchLimit];
+        clipFetcher.command = ["python3", Quickshell.env("HOME") + "/.config/hypr/scripts/quickshell/clipboard/clip_fetcher.py", window.currentOffset, window.fetchLimit, paths.getCacheDir("clipboard")];
         clipFetcher.running = true;
     }
 
@@ -204,7 +206,7 @@ Item {
                 window.currentOffset = 0;
                 window.hasMore = true;
                 window.isLoading = true;
-                clipFetcher.command = ["python3", Quickshell.env("HOME") + "/.config/hypr/scripts/quickshell/clipboard/clip_fetcher.py", 0, window.fetchLimit];
+                clipFetcher.command = ["python3", Quickshell.env("HOME") + "/.config/hypr/scripts/quickshell/clipboard/clip_fetcher.py", 0, window.fetchLimit, paths.getCacheDir("clipboard")];
                 clipFetcher.running = true;
             } else {
                 searchInput.text = "";
@@ -461,8 +463,8 @@ Item {
             clip: true
             model: clipModel
 
-	    cellWidth: Math.floor((mainBg.width - window.s(20)) / mainBg.cols)
-	    cellHeight: mainBg.cellH
+            cellWidth: Math.floor((mainBg.width - window.s(20)) / mainBg.cols)
+            cellHeight: mainBg.cellH
             
             currentIndex: 0
             boundsBehavior: Flickable.StopAtBounds
@@ -470,8 +472,8 @@ Item {
             highlightFollowsCurrentItem: false
 
             populate: Transition {
-    		NumberAnimation { property: "opacity"; from: 1; to: 1; duration: 0 }
-	    }
+                NumberAnimation { property: "opacity"; from: 1; to: 1; duration: 0 }
+            }
             
             add: Transition {
                 id: addTrans

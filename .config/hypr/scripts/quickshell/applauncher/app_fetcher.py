@@ -60,3 +60,4 @@ def fetch_apps():
 if __name__ == "__main__":
     fetch_apps()
 
+
