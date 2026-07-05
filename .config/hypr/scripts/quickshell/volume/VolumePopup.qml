@@ -172,7 +172,8 @@ Item {
             
             let obj = {
                 id: d.id, name: d.name, description: d.description,
-                volume: d.volume, mute: d.mute, is_default: d.is_default, icon: d.icon
+                volume: d.volume, mute: d.mute, is_default: d.is_default, icon: d.icon,
+                sink_id: d.sink_id || "", sink_name: d.sink_name || "", sink_label: d.sink_label || ""
             };
 
             if (foundIdx === -1) {
@@ -692,6 +693,11 @@ Item {
                             id: delegateRoot
                             width: contentList.width
                             
+                            // Per-stream routing state (apps tab)
+                            property bool routeOpen: false
+                            property string appId: model.id
+                            property string appSinkId: model.sink_id !== undefined ? model.sink_id : ""
+
                             // Staggered Intro Animation Timer
                             property bool isLoaded: false
                             Timer {
@@ -708,7 +714,9 @@ Item {
 
                             // Dynamic Height: The active hero element collapses its bottom slider row
                             property bool isActiveNode: model.is_default && window.activeTab !== "apps"
-                            height: isActiveNode ? window.s(60) : window.s(100)
+                            height: (isActiveNode ? window.s(60) : window.s(100))
+                                    + (delegateRoot.routeOpen && window.activeTab === "apps"
+                                       ? (window.s(34) * Math.min(outputsModel.count, 6) + window.s(18)) : 0)
                             Behavior on height { NumberAnimation { duration: 400; easing.type: Easing.OutQuint } }
 
                             radius: window.s(14)
@@ -775,6 +783,45 @@ Item {
                                             font.family: "JetBrains Mono"; font.pixelSize: window.s(11)
                                             color: isActiveNode ? Qt.darker(window.crust, 1.5) : window.subtext0
                                             text: isActiveNode ? "Active Default" : model.name
+                                        }
+                                    }
+
+                                    // Per-stream routing chip (apps tab only)
+                                    Rectangle {
+                                        visible: window.activeTab === "apps"
+                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                        Layout.preferredHeight: window.s(26)
+                                        radius: window.s(13)
+                                        color: routeChipMa.containsMouse ? "#1affffff" : "#0dffffff"
+                                        border.color: routeChipMa.containsMouse ? window.tabColor : "#1affffff"
+                                        border.width: 1
+                                        Behavior on color { ColorAnimation { duration: 150 } }
+                                        Behavior on border.color { ColorAnimation { duration: 150 } }
+                                        implicitWidth: routeRow.implicitWidth + window.s(22)
+
+                                        RowLayout {
+                                            id: routeRow
+                                            anchors.centerIn: parent
+                                            spacing: window.s(6)
+                                            Text {
+                                                font.family: "JetBrains Mono"; font.weight: Font.Bold; font.pixelSize: window.s(10)
+                                                color: window.subtext0
+                                                text: {
+                                                    let lbl = (model.sink_label && model.sink_label !== "") ? model.sink_label : "Easy Effects";
+                                                    return lbl.length > 13 ? lbl.substring(0, 12) + "…" : lbl;
+                                                }
+                                            }
+                                            Text {
+                                                font.family: "Iosevka Nerd Font"; font.pixelSize: window.s(12)
+                                                color: window.overlay0
+                                                text: delegateRoot.routeOpen ? "▴" : "▾"
+                                            }
+                                        }
+
+                                        MouseArea {
+                                            id: routeChipMa
+                                            anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                                            onClicked: delegateRoot.routeOpen = !delegateRoot.routeOpen
                                         }
                                     }
                                 }
@@ -890,6 +937,77 @@ Item {
                                         color: window.subtext0
                                         text: model.volume + "%"
                                         horizontalAlignment: Text.AlignRight
+                                    }
+                                }
+
+                                // Per-stream routing picker (apps tab, expanded)
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    visible: delegateRoot.routeOpen && window.activeTab === "apps"
+                                    spacing: window.s(6)
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        font.family: "JetBrains Mono"; font.weight: Font.Bold; font.pixelSize: window.s(10)
+                                        color: window.overlay0
+                                        text: "Route to device"
+                                    }
+
+                                    Repeater {
+                                        model: outputsModel
+                                        delegate: Rectangle {
+                                            id: devRow
+                                            Layout.fillWidth: true
+                                            Layout.preferredHeight: window.s(30)
+                                            radius: window.s(8)
+                                            property bool isCurrent: String(model.id) === delegateRoot.appSinkId
+                                            color: devMa.containsMouse ? "#14ffffff" : (isCurrent ? "#0cffffff" : "transparent")
+                                            border.color: isCurrent ? window.tabColor : "transparent"
+                                            border.width: isCurrent ? 1 : 0
+                                            Behavior on color { ColorAnimation { duration: 120 } }
+
+                                            RowLayout {
+                                                anchors.fill: parent
+                                                anchors.leftMargin: window.s(10)
+                                                anchors.rightMargin: window.s(10)
+                                                spacing: window.s(8)
+
+                                                Text {
+                                                    font.family: "Iosevka Nerd Font"; font.pixelSize: window.s(14)
+                                                    color: isCurrent ? window.text : window.subtext0
+                                                    text: {
+                                                        let d = (model.description || "").toLowerCase();
+                                                        if (d.indexOf("easy effect") !== -1) return "󰝊";
+                                                        if (d.indexOf("headphone") !== -1) return "󰋎";
+                                                        if (d.indexOf("hdmi") !== -1) return "󰡁";
+                                                        if (d.indexOf("spdif") !== -1) return "󰲝";
+                                                        return "󰓃";
+                                                    }
+                                                }
+                                                Text {
+                                                    Layout.fillWidth: true; elide: Text.ElideRight
+                                                    font.family: "JetBrains Mono"; font.pixelSize: window.s(11)
+                                                    color: isCurrent ? window.text : window.subtext0
+                                                    text: model.description
+                                                }
+                                                Text {
+                                                    visible: isCurrent
+                                                    font.family: "Iosevka Nerd Font"; font.pixelSize: window.s(13)
+                                                    color: window.green
+                                                    text: "󰄬"
+                                                }
+                                            }
+
+                                            MouseArea {
+                                                id: devMa
+                                                anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                                                onClicked: {
+                                                    Quickshell.execDetached(["bash", window.scriptsDir + "/audio_control.sh", "move", "sink-input", delegateRoot.appId, model.name]);
+                                                    audioPoller.running = true;
+                                                    delegateRoot.routeOpen = false;
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }

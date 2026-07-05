@@ -82,11 +82,27 @@ def get_data():
             "icon": icon
         }
 
+    # Map sink index -> (node name, description) so each app stream can show
+    # and re-select the device it is currently routed to.
+    sink_by_index = {}
+    for sk in sinks:
+        sk_props = sk.get("properties", {})
+        sink_by_index[str(sk.get("index"))] = (
+            sk.get("name", ""),
+            get_valid_string(sk_props.get("device.description"), sk.get("name", ""), sk.get("name", "")),
+        )
+
     apps = []
     for s in sink_inputs:
         props = s.get("properties", {})
         if props.get("application.id") != "org.PulseAudio.pavucontrol":
-            apps.append(format_node(s, is_app=True))
+            node = format_node(s, is_app=True)
+            cur_sink = str(s.get("sink", ""))
+            sn, sd = sink_by_index.get(cur_sink, ("", ""))
+            node["sink_id"] = cur_sink
+            node["sink_name"] = sn
+            node["sink_label"] = sd if sd else "Easy Effects"
+            apps.append(node)
 
     # Filter out monitor sources so outputs don't show up in the inputs tab
     real_inputs = []
