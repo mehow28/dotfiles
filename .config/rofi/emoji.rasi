@@ -5,7 +5,7 @@
 
 window {
     width: 720px;
-    height: 540px;
+    height: 500px;
     border-radius: 20px;
 }
 
@@ -33,6 +33,23 @@ entry {
     font: "JetBrainsMono Nerd Font Bold 12";
     horizontal-align: 0.0;
 }
+
+/* Recently-used row: rofimoji sends recents as a rofi "message"
+   ("1: <emoji> | 2: <emoji> | ..."), rendered here above the grid. 
+message {
+    background-color: @surface-alpha;
+    border-radius: 12px;
+    border: 1px;
+    border-color: rgba(255, 255, 255, 0.05);
+    padding: 10px 12px;
+}*/
+
+// message textbox {
+//     font: "Noto Color Emoji 22";
+//     text-color: @grey;
+//     horizontal-align: 0.5;
+//     vertical-align: 0.5;
+// }
 
 /* Dense emoji grid */
 listview {
