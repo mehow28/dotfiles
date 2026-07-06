@@ -1,0 +1,77 @@
+/* Compact emoji-only picker.
+   Inherits Matugen colors from theme.rasi (auto-updates with wallpaper)
+   and overrides only the layout: dense grid, no labels, big emoji. */
+@theme "theme.rasi"
+
+window {
+    width: 720px;
+    height: 540px;
+    border-radius: 20px;
+}
+
+mainbox {
+    orientation: vertical;
+    children: [ inputbar, listview ];
+    spacing: 16px;
+    padding: 24px;
+}
+
+/* Full-width compact search bar */
+inputbar {
+    children: [ entry ];
+    background-color: @surface-alpha;
+    border-radius: 12px;
+    padding: 10px;
+    border: 1px;
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+entry {
+    placeholder: "Search emoji";
+    placeholder-color: @grey;
+    text-color: @fg-col;
+    font: "JetBrainsMono Nerd Font Bold 12";
+    horizontal-align: 0.0;
+}
+
+/* Dense emoji grid */
+listview {
+    columns: 10;
+    lines: 7;
+    spacing: 6px;
+    flow: horizontal;
+    fixed-columns: true;
+    background-color: transparent;
+    border: 0px;
+    margin: 0px;
+    padding: 0px;
+}
+
+/* Emoji-only cell: render emoji as an icon (avoids color-emoji text clipping) */
+element {
+    orientation: vertical;
+    children: [ element-icon ];
+    padding: 8px;
+    spacing: 0px;
+    background-color: transparent;
+    border: 1px;
+    border-color: transparent;
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+/* Hover/selection: glassy gradient + mauve border, keep emoji color intact */
+element selected {
+    background-image: @active-grad;
+    border: 1px;
+    border-color: @mauve;
+    border-radius: 12px;
+    text-color: @fg-col;
+}
+
+element-icon {
+    size: 40px;
+    horizontal-align: 0.5;
+    vertical-align: 0.5;
+    cursor: inherit;
+}

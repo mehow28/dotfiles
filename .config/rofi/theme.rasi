@@ -1,15 +1,15 @@
 * {
     /* Matugen Generated Palette */
     bg-col:                 #161217;
-    bg-col-light:           #1e1a20;
-    border-col:             #4b454d;
+    bg-col-light:           #100d12;
+    border-col:             #978e98;
     selected-col:           #2d282e;
     blue:                   #d3c1d8;
     fg-col:                 #e9e0e7;
     fg-col2:                #ffb4ab;
     grey:                   #cdc3ce;
-    surface0:               #221e24;
-    surface1:               #2d282e;
+    surface0:               #1e1a20;
+    surface1:               #221e24;
     mauve:                  #e0b8f6;
     rosewater:              #f4b7b9;
     
@@ -19,7 +19,7 @@
     surface-alpha:          #2d282e80; 
     
     /* GRADIENTS for "Cooler" Look */
-    active-grad:            linear-gradient(to bottom, #2d282e, #221e24);
+    active-grad:            linear-gradient(to bottom, #221e24, #1e1a20);
     tab-grad:               linear-gradient(to right, #e0b8f6, #d3c1d8);
 
     width: 1200px;
