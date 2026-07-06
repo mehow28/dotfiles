@@ -36,8 +36,8 @@ def get_cliphist():
     
     try:
         # Fetch the entire list quickly
-        result = subprocess.run(["cliphist", "list"], capture_output=True, text=True)
-        all_lines = result.stdout.strip().split('\n')
+        result = subprocess.run(["cliphist", "list"], capture_output=True)
+        all_lines = result.stdout.decode("utf-8", errors="replace").strip().split('\n')
         
         # Slice only the requested chunk
         lines = all_lines[offset:offset+limit]
