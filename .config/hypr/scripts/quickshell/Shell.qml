@@ -11,6 +11,5 @@ ShellRoot {
 
     Main {}
     TopBar {}
-    Floating {}
 }
 

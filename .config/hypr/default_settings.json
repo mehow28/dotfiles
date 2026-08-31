@@ -83,7 +83,7 @@
     {"command": "hypridle"},
     {"command": "quickshell -p ~/.config/hypr/scripts/quickshell/Main.qml"},
     {"command": "quickshell -p ~/.config/hypr/scripts/quickshell/TopBar.qml"},
-    {"command": "quickshell -p ~/.config/hypr/scripts/quickshell/Floating.qml"},
+    //{"command": "quickshell -p ~/.config/hypr/scripts/quickshell/Floating.qml"},
     {"command": "python3 ~/.config/hypr/scripts/quickshell/focustime/focus_daemon.py &"},
     {"command": "~/.config/hypr/scripts/init.sh"},
     {"command": "~/.config/hypr/scripts/settings_watcher.sh &"},
