@@ -1,3 +1,4 @@
-*.backup-*
-*.backup-broken*
-*.old
+secrets/.env
+secrets/*.age
+*.tgz
+qylock/
