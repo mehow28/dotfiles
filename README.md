@@ -1,6 +1,6 @@
 # Dotfiles Backup
 
-CachyOS Hyprland rice, based on [ilyamiro/nixos-configuration](https://github.com/ilyamiro/nixos-configuration) with [qylock](https://github.com/Darkkal44/qylock) lockscreen. Heavily tweaked.
+Hyprland + Quickshell rice, originally based on [ilyamiro/nixos-configuration](https://github.com/ilyamiro/nixos-configuration) — now spun off into own setup (Lua migration, per-host overlays). Lockscreen is stripped Quickshell `Lock.qml` (qylock/pixel themes removed).
 
 ## Backed Up Configs
 
@@ -8,7 +8,8 @@ CachyOS Hyprland rice, based on [ilyamiro/nixos-configuration](https://github.co
 |---|---|
 | `.config/hypr/` | Hyprland compositor — modular config structure (`config/` subdirectory), Quickshell UI panels, custom scripts, matugen colors, hypridle |
 | `.config/hypr/scripts/quickshell/` | Quickshell UI — app launcher, top bar, notifications, music player, volume, network, battery, calendar, clipboard, screenshot, wallpaper picker, focustime, monitors, settings, guide |
-| `.local/share/quickshell-lockscreen/` | qylock Quickshell lockscreen (currently using `pixel-night-city` theme) |
+| `.config/kitty/` | Kitty terminal — `kitty.conf` font/size/cursor, `colors.conf` + `kitty-matugen-colors.conf` |
+| `.local/share/quickshell-lockscreen/` | Legacy qylock (kept for reference, no longer used — see `lock_simple/`) |
 | `.config/waybar/` | Waybar config, styles, scripts (installed but not in autostart — replaced by Quickshell TopBar) |
 | `.config/rofi/` | Rofi theme (installed but secondary to Quickshell app launcher) |
 | `.config/dunst/` | Dunst notification daemon (installed but not in autostart — replaced by Quickshell notifications) |
@@ -23,27 +24,29 @@ CachyOS Hyprland rice, based on [ilyamiro/nixos-configuration](https://github.co
 | `.config/nwg-look/` | nwg-look GTK theme settings |
 | `.config/qt6ct/` | Qt6 appearance — matugen-generated colors and stylesheets |
 
+## Structure
+
+- `hosts/desktop|tv|laptop/settings.json` — Per-host overlays (monitors, idle, scale). `desktop` is dual DP-3/HDMI (1-5 DP-3, 6-10 HDMI), `laptop` ThinkPad T14 eDP-1, `tv` HDMI single with idle off.
+- `tools/json2lua.py` — Idempotent own JSON→Lua generator (`settings.json` → `config/*.lua` + `hyprland.lua` via `hl.*`). Keeps `settings_watcher.sh`.
+- `install/arch-full-install.sh` — Mode A: clean Arch archiso 0→Hyprland (laptop/tv, with `yay` deps + auto `hyprctl monitors -j` detect).
+- `install/cachyos-overlay.sh` — Mode B: CachyOS overlay only (desktop, deps + rsync, no repartition).
+- `secrets/.env.example` — Never commit `secrets/.env`.
+
 ## Scripts
 
-- **`backup.sh`** — Sync dotfiles into this repo (run before/after making rice changes)
-- **`push.sh`** — Commit and push to GitHub (`push.sh "optional message"`)
+- **`backup.sh`** — Sync dotfiles into repo (`backup.sh [--host desktop|laptop|tv]`, now includes `kitty`).
+- **`push.sh`** — Commit and push (`push.sh "msg"`). One-click: `backup.sh && push.sh`.
+- **`tools/json2lua.py [host]`** — Regenerate Lua (idempotent, atomic `.tmp`→`.lua`).
 
 ## Not Backed Up (System-Level)
 
 These live outside user config and require manual setup:
 
-### SDDM Login Theme (qylock)
-Config at `/etc/sddm.conf.d/`:
-- `10-wayland-matugen.conf` — matugen integration for SDDM
-- `hyprland.conf` — Hyprland session config
-- `theme.conf` — currently set to `pixel-skyscrapers`
-- `zzz-x11-override.conf` — X11 fallback
+### SDDM / Lock
 
-qylock is cloned at `~/Boniland/qylock/`. To reinstall:
-```bash
-git clone https://github.com/Darkkal44/qylock.git ~/Boniland/qylock
-cd ~/Boniland/qylock && chmod +x sddm.sh && ./sddm.sh
-```
+- Legacy `qylock` + `pixel-night-city`/`pixel-skyscrapers` removed (resource heavy, dual-lock crash via `hypridle` 600s → `loginctl lock-session` + `Lock.qml`). Branch `legacy-conf` + tag `pre-lua-20260901` + `~/hypr_conf_legacy_20260901.tgz` preserve old.
+- Now: single stripped `quickshell/Lock.qml` (`hypridle.conf: lock_cmd = bash ~/.config/hypr/scripts/lock.sh`), SDDM at `/etc/sddm.conf.d/` uses simple theme.
+- `hypridle` per-host: desktop 600s, laptop dim 120s/dpms 300s, tv idle off.
 
 ## Active Themes / Dependencies
 
@@ -55,8 +58,8 @@ cd ~/Boniland/qylock && chmod +x sddm.sh && ./sddm.sh
 | Kvantum theme | `catppuccin-mocha-peach` | [github.com/catppuccin/Kvantum](https://github.com/catppuccin/Kvantum) |
 | Color scheme | Matugen-generated | [github.com/InioX/matugen](https://github.com/InioX/matugen) — generates colors from wallpaper |
 | Font | JetBrains Mono | Standard Arch package (`extra/ttf-jetbrains-mono`) |
-| Lockscreen theme | `pixel-night-city` | qylock (see above) |
-| SDDM theme | `pixel-skyscrapers` | qylock (see above) |
+| Lockscreen | Stripped `quickshell/Lock.qml` | Own |
+| SDDM theme | Simple (qylock removed) | — |
 
 ### Also Installed (from previous rice)
 | Theme | Source |
