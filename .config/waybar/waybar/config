@@ -1,0 +1,241 @@
+[
+    {
+        "layer": "top",
+        "position": "top",
+        "margin-top": 3,
+        "margin-bottom": 1,
+        "height": 22,
+        "margin-left": 8,
+        "margin-right": 8,
+        "spacing": 0,
+        "exclusive": true,
+        "gtk-layer-shell": true,
+        "passthrough": false,
+        "reload_style_on_change": true,
+        "output": "DP-3",
+
+        "modules-left": ["hyprland/workspaces", "hyprland/window"],
+        "modules-center": ["custom/spotify", "clock"],
+        "modules-right": ["custom/weather", "pulseaudio", "custom/system_stats", "custom/notification", "tray", "custom/power"],
+
+        "hyprland/workspaces": {
+            "format": "{name}",
+            "on-click": "activate",
+            "sort-by-number": true,
+            "all-outputs": false,
+            "active-only": false,
+            "show-special": false,
+            "persistent-workspaces": { "DP-3": [1, 2, 3, 4, 5] }
+        },
+
+        "hyprland/window": {
+            "format": "{}",
+            "rewrite": {
+                "": "[ofield]"
+            },
+            "max-length": 50,
+            "separate-outputs": true
+        },
+
+        "clock": {
+            "timezone": "Europe/Warsaw",
+            "tooltip-format": "<big>{:%d %B %Y}</big>\n<tt>{calendar}</tt>",
+            "format-calendar-months": "",
+            "format-calendar-today": "<span weight='bold'><u>{}</u></span>",
+            "format": "{:%H:%M}"
+        },
+
+        "pulseaudio": {
+            "scroll-step": 2,
+            "format": "{icon} {volume}%",
+            "format-muted": "🔇 Muted",
+            "format-icons": {
+                "headphone": "🎧", "hands-free": "🎧", "headset": "🎧",
+                "phone": "📱", "portable": "🔊", "car": "🚗",
+                "default": ["🔈", "🔉", "🔊"]
+            },
+            "on-click": "~/.config/waybar/scripts/ags-toggle-audio.sh",
+            "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+            "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%+",
+            "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%-",
+            "tooltip-format": "Volume: {volume}%\nClick for popup mixer"
+        },
+
+        "tray": { "icon-size": 18, "spacing": 10 },
+
+        "custom/notification": {
+            "tooltip": false,
+            "format": "{icon}",
+            "format-icons": {
+                "notification": "🔔<span foreground='#a855f7'><sup></sup></span>",
+                "none": "🔕",
+                "dnd-notification": "🔕<span foreground='#f38ba8'><sup></sup></span>",
+                "dnd-none": "🔕",
+                "inhibited-notification": "🔔<span foreground='#a855f7'><sup></sup></span>",
+                "inhibited-none": "🔕"
+            },
+            "return-type": "json",
+            "exec-if": "which swaync-client",
+            "exec": "swaync-client -swb",
+            "on-click": "swaync-client -t -sw",
+            "on-click-right": "swaync-client -d -sw",
+            "escape": true
+        },
+
+        "custom/weather": {
+            "exec": "~/.config/waybar/scripts/weather.sh",
+            "interval": 600,
+            "format": "{}",
+            "on-click": "~/.config/waybar/scripts/ags-toggle-weather.sh",
+            "tooltip": true,
+            "tooltip-format": "Click for forecast popup"
+        },
+
+        "custom/power": {
+            "format": "",
+            "on-click": "wlogout",
+            "tooltip": false
+        },
+
+        "custom/system_stats": {
+            "exec": "~/.config/waybar/scripts/system_stats.sh",
+            "interval": 2,
+            "format": "{}",
+            "tooltip": false,
+            "on-click": "~/.config/waybar/scripts/ags-toggle-system.sh"
+        },
+
+        "custom/spotify": {
+            "exec": "~/.config/waybar/scripts/spotify.sh",
+            "interval": 2,
+            "format": "{}",
+            "max-length": 50,
+            "return-type": "html",
+            "on-click": "playerctl play-pause",
+            "on-click-right": "~/.config/waybar/scripts/spotify-focus.sh",
+            "on-scroll-up": "playerctl next",
+            "on-scroll-down": "playerctl previous",
+            "tooltip": false
+        }
+    },
+
+    {
+        "layer": "top",
+        "position": "top",
+        "height": 22,
+        "margin-top": 3,
+        "margin-bottom": 1,
+        "margin-left": 8,
+        "margin-right": 8,
+        "spacing": 0,
+        "exclusive": true,
+        "gtk-layer-shell": true,
+        "passthrough": false,
+        "reload_style_on_change": true,
+        "output": "HDMI-A-1",
+
+        "modules-left": ["hyprland/workspaces", "hyprland/window"],
+        "modules-center": ["custom/spotify", "clock"],
+        "modules-right": ["custom/weather", "pulseaudio", "custom/system_stats", "custom/notification", "tray", "custom/power"],
+
+        "hyprland/workspaces": {
+            "format": "{name}",
+            "on-click": "activate",
+            "sort-by-number": true,
+            "all-outputs": false,
+            "active-only": false,
+            "show-special": false,
+            "persistent-workspaces": { "HDMI-A-1": [6, 7, 8, 9, 10] }
+        },
+
+        "hyprland/window": {
+            "format": "{}",
+            "rewrite": {
+                "": "[ofield]"
+            },
+            "max-length": 50,
+            "separate-outputs": true
+        },
+
+        "clock": {
+            "timezone": "Europe/Warsaw",
+            "tooltip-format": "<big>{:%d %B %Y}</big>\n<tt>{calendar}</tt>",
+            "format-calendar-months": "",
+            "format-calendar-today": "<span weight='bold'><u>{}</u></span>",
+            "format": "{:%H:%M}"
+        },
+
+        "pulseaudio": {
+            "scroll-step": 2,
+            "format": "{icon} {volume}%",
+            "format-muted": "🔇 Muted",
+            "format-icons": {
+                "headphone": "🎧", "hands-free": "🎧", "headset": "🎧",
+                "phone": "📱", "portable": "🔊", "car": "🚗",
+                "default": ["🔈", "🔉", "🔊"]
+            },
+            "on-click": "~/.config/waybar/scripts/ags-toggle-audio.sh",
+            "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+            "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%+",
+            "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%-",
+            "tooltip-format": "Volume: {volume}%\nClick for popup mixer"
+        },
+
+        "tray": { "icon-size": 18, "spacing": 10 },
+
+        "custom/notification": {
+            "tooltip": false,
+            "format": "{icon}",
+            "format-icons": {
+                "notification": "🔔<span foreground='#a855f7'><sup></sup></span>",
+                "none": "🔕",
+                "dnd-notification": "🔕<span foreground='#f38ba8'><sup></sup></span>",
+                "dnd-none": "🔕",
+                "inhibited-notification": "🔔<span foreground='#a855f7'><sup></sup></span>",
+                "inhibited-none": "🔕"
+            },
+            "return-type": "json",
+            "exec-if": "which swaync-client",
+            "exec": "swaync-client -swb",
+            "on-click": "swaync-client -t -sw",
+            "on-click-right": "swaync-client -d -sw",
+            "escape": true
+        },
+
+        "custom/weather": {
+            "exec": "~/.config/waybar/scripts/weather.sh",
+            "interval": 600,
+            "format": "{}",
+            "on-click": "~/.config/waybar/scripts/ags-toggle-weather.sh",
+            "tooltip": true,
+            "tooltip-format": "Click for forecast popup"
+        },
+
+        "custom/power": {
+            "format": "",
+            "on-click": "wlogout",
+            "tooltip": false
+        },
+
+        "custom/spotify": {
+            "exec": "~/.config/waybar/scripts/spotify.sh",
+            "interval": 2,
+            "format": "{}",
+            "max-length": 50,
+            "return-type": "html",
+            "on-click": "playerctl play-pause",
+            "on-click-right": "~/.config/waybar/scripts/spotify-focus.sh",
+            "on-scroll-up": "playerctl next",
+            "on-scroll-down": "playerctl previous",
+            "tooltip": false
+        },
+
+        "custom/system_stats": {
+            "exec": "~/.config/waybar/scripts/system_stats.sh",
+            "interval": 2,
+            "format": "{}",
+            "tooltip": false,
+            "on-click": "~/.config/waybar/scripts/ags-toggle-system.sh"
+        }
+    }
+]

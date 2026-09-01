@@ -1,10 +1,11 @@
 #!/bin/bash
 
-DOTFILES_DIR="$HOME/dotfiles"
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
 CONFIG_SRC="$HOME/.config"
 
 CONFIG_DIRS=(
     hypr
+    kitty
     waybar
     rofi
     dunst
